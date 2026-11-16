@@ -7,7 +7,7 @@
   "repository": "https://github.com/valethq/valet-search-tavily",
   "valet": "^0.1.0",
   "main": "./src/index.ts",
-  "provides": ["tools@1"],
+  "provides": ["tools@1", "settings@1"],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

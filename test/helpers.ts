@@ -1,4 +1,4 @@
-import type { ToolCall } from "@valethq/sdk";
+import type { PluginStorage, ToolCall } from "@valethq/sdk";
 import { settings } from "../src/config";
 import { makeHttp } from "../src/http";
 import { provider } from "../src/provider";
@@ -50,3 +50,13 @@ export const call = (role: ToolCall["role"] = "trusted"): ToolCall => ({
 
 export const textOf = (r: { content: { type: string; text?: string }[] }) =>
   r.content.map((c) => c.text ?? "").join("");
+
+export function kv(): PluginStorage["kv"] {
+  const map = new Map<string, unknown>();
+  return {
+    get: <T>(k: string) => map.get(k) as T | undefined,
+    set: (k, v) => void map.set(k, v),
+    delete: (k) => void map.delete(k),
+    list: (p = "") => [...map.keys()].filter((k) => k.startsWith(p)),
+  };
+}

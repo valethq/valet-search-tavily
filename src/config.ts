@@ -30,6 +30,9 @@ export interface Settings {
 export const RANK: Record<Role, number> = { guest: 0, trusted: 1, owner: 2 };
 export const MAX_URLS = 10;
 export const MAX_CHARACTERS = 50_000;
+export const MIN_CHARACTERS = 100;
+export const MIN_TIMEOUT_MS = 1000;
+export const MAX_TIMEOUT_MS = 300_000;
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(Math.max(Math.trunc(n), lo), hi);
 
@@ -40,8 +43,8 @@ export function settings(cfg: ProviderConfig | undefined, p: Provider): Settings
     baseUrl: (cfg?.baseUrl ?? p.baseUrl).replace(/\/+$/, ""),
     mode: p.modes.includes(mode) ? mode : p.defaultMode,
     numResults: clamp(cfg?.numResults ?? 8, 1, p.maxResults),
-    maxCharacters: clamp(cfg?.maxCharacters ?? 2000, 100, MAX_CHARACTERS),
-    timeoutMs: clamp(cfg?.timeoutMs ?? 30_000, 1000, 300_000),
+    maxCharacters: clamp(cfg?.maxCharacters ?? 2000, MIN_CHARACTERS, MAX_CHARACTERS),
+    timeoutMs: clamp(cfg?.timeoutMs ?? 30_000, MIN_TIMEOUT_MS, MAX_TIMEOUT_MS),
     minRole: cfg?.minRole ?? "trusted",
   };
 }

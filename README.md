@@ -37,6 +37,12 @@ All optional, under `plugins.valet-search-tavily.config`:
 
 Config changes apply without a restart.
 
+## Settings panel
+
+The plugin adds a settings panel (mode, results per search, excerpt size, timeout, lowest role with access) and shows
+whether the API key was found. Values saved there override `config.json` and apply to the next call. "Reset to
+config.json" discards them. The key itself is a secret file and is not editable from the panel.
+
 ## Checks
 
 `bun run typecheck`, `bun run lint`, `bun test`.
