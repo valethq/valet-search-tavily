@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "valet-fixture-auth",
+  "name": "Fixture Auth",
+  "version": "0.1.0",
+  "valet": "^0.1.0",
+  "main": "./index.ts",
+  "provides": ["identity@1"]
+}

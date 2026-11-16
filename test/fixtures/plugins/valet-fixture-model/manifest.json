@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "valet-fixture-model",
+  "name": "Fixture model",
+  "version": "0.1.0",
+  "valet": "^0.1.0",
+  "main": "./index.ts",
+  "provides": ["inference@1"]
+}

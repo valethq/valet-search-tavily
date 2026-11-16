@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "id": "valet-search-tavily",
+  "name": "Tavily Search",
+  "version": "0.1.0",
+  "description": "web_search_tavily and web_fetch_tavily tools backed by the Tavily API.",
+  "repository": "https://github.com/valethq/valet-search-tavily",
+  "valet": "^0.1.0",
+  "main": "./src/index.ts",
+  "provides": ["tools@1"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "secret": {
+        "type": "string"
+      },
+      "baseUrl": {
+        "type": "string"
+      },
+      "mode": {
+        "type": "string",
+        "enum": ["basic", "advanced", "fast", "ultra-fast"]
+      },
+      "numResults": {
+        "type": "number"
+      },
+      "maxCharacters": {
+        "type": "number"
+      },
+      "timeoutMs": {
+        "type": "number"
+      },
+      "minRole": {
+        "type": "string",
+        "enum": ["owner", "trusted", "guest"]
+      }
+    }
+  }
+}
