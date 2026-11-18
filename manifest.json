@@ -11,29 +11,62 @@
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
+    "x-group": "tools",
+    "x-icon": "search",
     "properties": {
       "secret": {
-        "type": "string"
+        "type": "string",
+        "title": "API key secret",
+        "description": "Secret name (~/.valet/secrets/<name>, then env <NAME>).",
+        "default": "tavily_api_key",
+        "x-widget": "secret"
       },
       "baseUrl": {
-        "type": "string"
+        "type": "string",
+        "title": "Base URL",
+        "description": "Tavily API base URL. Override for tests or a proxy.",
+        "default": "https://api.tavily.com",
+        "x-advanced": true
       },
       "mode": {
         "type": "string",
-        "enum": ["basic", "advanced", "fast", "ultra-fast"]
+        "title": "Mode",
+        "description": "Tavily search_depth.",
+        "enum": ["basic", "advanced", "fast", "ultra-fast"],
+        "enumNames": ["Basic", "Advanced (2 credits)", "Fast", "Ultra-fast"],
+        "default": "basic"
       },
       "numResults": {
-        "type": "number"
+        "type": "integer",
+        "title": "Results per search",
+        "description": "Default number of hits web_search_tavily returns.",
+        "default": 8,
+        "minimum": 1,
+        "maximum": 20
       },
       "maxCharacters": {
-        "type": "number"
+        "type": "integer",
+        "title": "Excerpt characters",
+        "description": "Per result. web_fetch_tavily uses four times this.",
+        "default": 2000,
+        "minimum": 100,
+        "maximum": 50000
       },
       "timeoutMs": {
-        "type": "number"
+        "type": "integer",
+        "title": "Timeout (ms)",
+        "description": "Per-request timeout for search and fetch.",
+        "default": 30000,
+        "minimum": 1000,
+        "maximum": 300000
       },
       "minRole": {
         "type": "string",
-        "enum": ["owner", "trusted", "guest"]
+        "title": "Lowest role with access",
+        "description": "Runs below this role do not see the tools.",
+        "enum": ["owner", "trusted", "guest"],
+        "enumNames": ["Owner only", "Trusted and owner", "Everyone"],
+        "default": "trusted"
       }
     }
   }
