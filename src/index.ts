@@ -1,17 +1,13 @@
 import { definePlugin } from "@valethq/sdk";
-import { type ProviderConfig, RANK } from "./config";
+import { type ProviderConfig, RANK, settings } from "./config";
 import { makeHttp } from "./http";
-import { resolve, settingsPanel } from "./panel";
+import { settingsPanel } from "./panel";
 import { provider } from "./provider";
 import { fetchTool, searchTool } from "./tools";
 
 export default definePlugin<ProviderConfig>({
   async activate(ctx) {
-    let config = ctx.config;
-    let current = resolve(config, ctx.storage.kv, provider);
-    const apply = () => {
-      current = resolve(config, ctx.storage.kv, provider);
-    };
+    let current = settings(ctx.config, provider);
     const http = makeHttp({
       provider,
       baseUrl: () => current.baseUrl,
@@ -22,8 +18,7 @@ export default definePlugin<ProviderConfig>({
       ctx.log.warn("no API key yet; tools will report it until one is added", { secret: current.secret });
     }
     ctx.onConfigChange((next) => {
-      config = next;
-      apply();
+      current = settings(next, provider);
     });
     const deps = { provider, http, settings: () => current };
     const tools = [searchTool(deps), fetchTool(deps)];
@@ -35,9 +30,7 @@ export default definePlugin<ProviderConfig>({
       "settings",
       settingsPanel({
         provider,
-        kv: ctx.storage.kv,
         current: () => current,
-        apply,
         hasKey: async () => Boolean(await ctx.secrets.get(current.secret)),
       }),
       { key: ctx.plugin.id },

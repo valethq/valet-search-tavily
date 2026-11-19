@@ -37,11 +37,12 @@ All optional, under `plugins.valet-search-tavily.config`:
 
 Config changes apply without a restart.
 
-## Settings panel
+## Settings
 
-The plugin adds a settings panel (mode, results per search, excerpt size, timeout, lowest role with access) and shows
-whether the API key was found. Values saved there override `config.json` and apply to the next call. "Reset to
-config.json" discards them. The key itself is a secret file and is not editable from the panel.
+Settings are this plugin's config block (ARCHITECTURE 12.1). Core merges defaults from `configSchema`, the config
+file, and `<valetHome>/settings.json`; `ctx.config` is the effective block. The settings page form is built from
+the enriched schema (titles, defaults, min/max, `x-group: tools`, `x-widget: secret` on the secret name). A small
+view-only panel above it shows whether the API key secret is present and a Refresh action.
 
 ## Checks
 
