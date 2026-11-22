@@ -59,6 +59,7 @@ function guarded(
       return deps.settings().minRole;
     },
     async invoke(input, call) {
+      // spec-gap: per-caller permission checks extend the documented minRole floor, same as defineTool.
       const allowed = toolAllowed(deps.acl, tool, call);
       if (!allowed.allow) return text(`web search is not available: ${allowed.reason}`, true);
       try {

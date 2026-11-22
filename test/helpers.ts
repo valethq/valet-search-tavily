@@ -67,12 +67,15 @@ export function deps(
 
 export const deny: Decision = { allow: false, by: "policy", reason: "no search for you" };
 
-export const call = (role: ToolCall["role"] = "trusted"): ToolCall => ({
+export const call = (role: ToolCall["role"] = "trusted", principalId?: string): ToolCall => ({
   sessionId: "s",
   runId: "r",
   callId: "c",
   role,
-  caller: { plugin: "valet-agent" } as ToolCall["caller"],
+  caller: {
+    plugin: "valet-agent",
+    ...(principalId === undefined ? {} : { actor: { principalId, role } }),
+  } as ToolCall["caller"],
   cwd: "/",
   signal: new AbortController().signal,
   progress() {},

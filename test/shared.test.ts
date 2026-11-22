@@ -1,4 +1,7 @@
 import { expect, test } from "bun:test";
+import type { PluginContext, ToolProvider } from "@valethq/sdk";
+import type { ProviderConfig } from "../src/config";
+import plugin from "../src/index";
 import { provider } from "../src/provider";
 import { fetchTool, searchTool } from "../src/tools";
 import { ok } from "./fixture";
@@ -52,13 +55,64 @@ test("the query permission is declared for guests and carried by both tools", ()
 
 test("a policy provider can withhold the permission", async () => {
   const { client, seen } = fakeApi(() => ok);
-  const acl = fakeAcl({ policy: (_s, permission) => (permission === PERMISSION ? deny : { allow: true }) });
+  const acl = fakeAcl({
+    roles: { boss: "owner" },
+    policy: (_s, permission) => (permission === PERMISSION ? deny : { allow: true }),
+  });
   for (const tool of [searchTool(deps(client, {}, acl)), fetchTool(deps(client, {}, acl))]) {
-    const r = await tool.invoke({ query: "q", urls: ["https://a.test"] }, call("owner"));
+    const r = await tool.invoke({ query: "q", urls: ["https://a.test"] }, call("owner", "boss"));
     expect(r.isError).toBe(true);
     expect(textOf(r)).toContain("no search for you");
   }
   expect(seen).toHaveLength(0);
+});
+
+test("the policy sees the session resource with its project ancestor", async () => {
+  const { client, seen } = fakeApi(() => ok);
+  const granted: { id?: string; ancestors?: readonly string[] }[] = [];
+  const acl = fakeAcl({
+    roles: { boss: "owner" },
+    policy: (_s, _p, resource) => {
+      granted.push({ id: resource?.id, ancestors: resource?.ancestors });
+      return resource?.ancestors?.includes("project:p") ? { allow: true } : deny;
+    },
+  });
+  const r = await searchTool(deps(client, {}, acl)).invoke({ query: "q" }, call("owner", "boss"));
+  expect(r.isError).toBeUndefined();
+  expect(seen).toHaveLength(1);
+  expect(granted).toEqual([{ id: "session:s", ancestors: ["project:p"] }]);
+});
+
+test("listing hides the tools from a caller without the grant", () => {
+  const acl = fakeAcl({
+    roles: { boss: "owner", pal: "trusted" },
+    policy: (subject, permission) =>
+      permission === PERMISSION && subject.principalId !== "boss" ? deny : { allow: true },
+  });
+  let list: ToolProvider["list"] | undefined;
+  plugin.activate({
+    ...acl,
+    config: {},
+    onConfigChange() {},
+    scopes: {
+      maybe: acl.scopes.maybe,
+      provide: (_scope: string, impl: ToolProvider) => {
+        list = impl.list;
+        return { dispose() {} };
+      },
+    },
+  } as unknown as PluginContext<ProviderConfig>);
+  const scope = (principalId: string) => ({
+    sessionId: "s",
+    projectId: "p",
+    role: "owner" as const,
+    caller: {
+      plugin: "valet-agent",
+      actor: { principalId, role: "owner" as const },
+    },
+  });
+  expect(list?.(scope("boss"))).toHaveLength(2);
+  expect(list?.(scope("pal"))).toHaveLength(0);
 });
 
 test("the permission is allowed at its guest default when the role floor allows", async () => {
