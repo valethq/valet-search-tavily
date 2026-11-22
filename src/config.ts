@@ -27,7 +27,6 @@ export interface Settings {
   minRole: Role;
 }
 
-export const RANK: Record<Role, number> = { guest: 0, trusted: 1, owner: 2 };
 export const MAX_URLS = 10;
 export const MAX_CHARACTERS = 50_000;
 export const MIN_CHARACTERS = 100;
