@@ -5,9 +5,17 @@
   "version": "0.1.0",
   "description": "web_search_tavily and web_fetch_tavily tools backed by the Tavily API.",
   "repository": "https://github.com/valethq/valet-search-tavily",
-  "valet": "^0.1.0",
+  "valet": "^0.1.1",
   "main": "./src/index.ts",
   "provides": ["tools@1"],
+  "acl": {
+    "permissions": {
+      "query": {
+        "summary": "Run web searches with Tavily",
+        "default": "guest"
+      }
+    }
+  },
   "settings": {
     "sections": {
       "tools": {

@@ -1,5 +1,11 @@
-import type { ToolCall, ToolDefinition, ToolResult } from "@valethq/sdk";
-import { MAX_CHARACTERS, MAX_URLS, RANK, type Settings } from "./config";
+import {
+  type AclContext,
+  type ToolCall,
+  type ToolDefinition,
+  type ToolResult,
+  toolAllowed,
+} from "@valethq/sdk";
+import { MAX_CHARACTERS, MAX_URLS, type Settings } from "./config";
 import { formatHits } from "./format";
 import { ProviderError } from "./http";
 import type { Http, Provider, Recency } from "./types";
@@ -8,6 +14,7 @@ export interface ToolDeps {
   provider: Provider;
   http: Http;
   settings(): Settings;
+  acl: AclContext;
 }
 
 interface SearchInput extends Record<string, unknown> {
@@ -42,18 +49,19 @@ function strings(v: unknown): string[] | undefined {
 
 function guarded(
   deps: ToolDeps,
-  def: Omit<ToolDefinition<never>, "invoke" | "minRole">,
+  def: Omit<ToolDefinition<never>, "invoke" | "minRole" | "permission">,
   run: ToolDefinition["invoke"],
 ): ToolDefinition {
-  return {
+  const tool: ToolDefinition = {
     ...def,
+    permission: `search-${deps.provider.id}:query`,
     get minRole() {
       return deps.settings().minRole;
     },
     async invoke(input, call) {
-      if (RANK[call.role] < RANK[deps.settings().minRole]) {
-        return text("web search is not available to this role", true);
-      }
+      // spec-gap: per-caller permission checks extend the documented minRole floor, same as defineTool.
+      const allowed = toolAllowed(deps.acl, tool, call);
+      if (!allowed.allow) return text(`web search is not available: ${allowed.reason}`, true);
       try {
         return await run(input, call);
       } catch (e) {
@@ -62,6 +70,7 @@ function guarded(
       }
     },
   };
+  return tool;
 }
 
 const withTimeout = (call: ToolCall, ms: number) => AbortSignal.any([call.signal, AbortSignal.timeout(ms)]);
