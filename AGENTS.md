@@ -1,6 +1,6 @@
 # valet-search-tavily
 
-tools@1 web_search_exa and web_fetch_exa tools backed by the Tavily API.
+tools@1 web_search_tavily and web_fetch_tavily tools backed by the Tavily API.
 
 Rules for this repo. The contract lives in `../valet-core`.
 
